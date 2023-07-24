@@ -75,7 +75,6 @@ module ActiveRecord::ConnectionAdapters::Firebird::DatabaseStatements
     log("rollback transaction", nil) { @connection.rollback }
   end
 
-  #def create_table(table_name, **options)
   def create_table(table_name, id: :primary_key, primary_key: nil, force: nil, **options)
     super
 
@@ -85,7 +84,7 @@ module ActiveRecord::ConnectionAdapters::Firebird::DatabaseStatements
     end
   end
 
-  def drop_table(table_name, options = {})
+  def drop_table(table_name, **options)
     if options[:sequence] != false
       sequence_name = options[:sequence] || default_sequence_name(table_name)
       drop_sequence(sequence_name) if sequence_exists?(sequence_name)
