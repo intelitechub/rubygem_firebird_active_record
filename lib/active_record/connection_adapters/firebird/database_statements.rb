@@ -106,7 +106,7 @@ module ActiveRecord::ConnectionAdapters::Firebird::DatabaseStatements
   end
 
   def default_sequence_name(table_name, _column = nil)
-    "#{table_name}_g01"
+    "gen_#{table_name}"
   end
 
   def next_sequence_value(sequence_name)
