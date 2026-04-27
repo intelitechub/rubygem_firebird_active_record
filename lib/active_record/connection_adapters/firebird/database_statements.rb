@@ -41,7 +41,9 @@ module ActiveRecord::ConnectionAdapters::Firebird::DatabaseStatements
             fields = result.fields.map(&:name)
             rows = result.fetchall.map do |row|
               row.map do |col|
-                col.encode('UTF-8', @connection.encoding) rescue col
+                next col unless col.is_a?(String)
+                utf8 = col.dup.force_encoding('UTF-8')
+                utf8.valid_encoding? ? utf8 : col.encode('UTF-8', @connection.encoding, invalid: :replace, undef: :replace)
               end
             end
 

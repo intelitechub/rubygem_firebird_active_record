@@ -120,7 +120,9 @@ private
   end
 
   def new_column_from_field(table_name, field)
-    type_metadata = fetch_type_metadata(field["sql_type"])
+    sql_type = field["sql_type"]
+    sql_type = "TEXT" if sql_type == "BLOB" && field["sql_subtype"] == 1
+    type_metadata = fetch_type_metadata(sql_type)
     ActiveRecord::ConnectionAdapters::Column.new(field["name"], field["default"], type_metadata, field["nullable"], table_name)
   end
 

@@ -82,8 +82,8 @@ class ActiveRecord::ConnectionAdapters::FirebirdAdapter < ActiveRecord::Connecti
 
 protected
 
-  def translate_exception(e, message)
-    case e.message
+  def translate_exception(exception, message:, sql:, binds:)
+    case exception.message
     when /violation of FOREIGN KEY constraint/
       ActiveRecord::InvalidForeignKey.new(message)
     when /violation of PRIMARY or UNIQUE KEY constraint/, /attempt to store duplicate value/
