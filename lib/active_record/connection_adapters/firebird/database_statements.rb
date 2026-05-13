@@ -25,6 +25,8 @@ module ActiveRecord::ConnectionAdapters::Firebird::DatabaseStatements
   end
 
   def exec_query(sql, name = 'SQL', binds = [], prepare: false)
+    sql = sql.encode(encoding, 'UTF-8')
+    
     type_casted_binds = type_casted_binds(binds).map do |value|
       value.encode(encoding) rescue value
     end
