@@ -36,17 +36,23 @@ module ActiveRecord::ConnectionAdapters::Firebird::DatabaseStatements
         begin
           result = @connection.execute(sql, *type_casted_binds)
           if result.is_a?(Fb::Cursor)
-            fields = result.fields.map(&:name)
+            fields = result.fields
+            field_names = fields.map(&:name)
             rows = result.fetchall.map do |row|
-              row.map do |col|
+              row.each_with_index.map do |col, i|
                 next col unless col.is_a?(String)
+                # Binary BLOBs (subtype 0) hold raw bytes (images, files, etc.) and must
+                # not go through text encoding conversion — doing so corrupts the data.
+                if fields[i].sql_type == 'BLOB' && fields[i].sql_subtype == 0
+                  next col.dup.force_encoding(Encoding::BINARY)
+                end
                 utf8 = col.dup.force_encoding('UTF-8')
                 utf8.valid_encoding? ? utf8 : col.encode('UTF-8', @connection.encoding, invalid: :replace, undef: :replace)
               end
             end
 
             result.close
-            ActiveRecord::Result.new(fields, rows)
+            ActiveRecord::Result.new(field_names, rows)
           elsif name.end_with?(' Destroy')
             result
           else
